@@ -1,71 +1,60 @@
-export default function Home() {
-  const products = [
-    {
-      id: 1,
-      title: "Fjallraven - Foldsack No. 1 Backpack, Fits 15 Laptops",
-      price: 109.95,
-      description:
-        "Your perfect pack for everyday use and walks in the forest. Stash your laptop (up to 15 inches) in the padded sleeve, your everyday",
-      category: "men's clothing",
-      image: "https://fakestoreapi.com/img/81fPKd-2AYL._AC_SL1500_.jpg",
-      rating: {
-        rate: 3.9,
-        count: 120,
-      },
-    },
-    {
-      id: 2,
-      title: "Mens Casual Premium Slim Fit T-Shirts ",
-      price: 22.3,
-      description:
-        "Slim-fitting style, contrast raglan long sleeve, three-button henley placket, light weight & soft fabric for breathable and comfortable wearing. And Solid stitched shirts with round neck made for durability and a great fit for casual fashion wear and diehard baseball fans. The Henley style round neckline includes a three-button placket.",
-      category: "men's clothing",
-      image:
-        "https://fakestoreapi.com/img/71-3HjGNDUL._AC_SY879._SX._UX._SY._UY_.jpg",
-      rating: {
-        rate: 4.1,
-        count: 259,
-      },
-    },
-    {
-      id: 3,
-      title: "Mens Cotton Jacket",
-      price: 55.99,
-      description:
-        "great outerwear jackets for Spring/Autumn/Winter, suitable for many occasions, such as working, hiking, camping, mountain/rock climbing, cycling, traveling or other outdoors. Good gift choice for you or your family member. A warm hearted love to Father, husband or son in this thanksgiving or Christmas Day.",
-      category: "men's clothing",
-      image: "https://fakestoreapi.com/img/71li-ujtlUL._AC_UX679_.jpg",
-      rating: {
-        rate: 4.7,
-        count: 500,
-      },
-    },
-  ];
+'use client';
 
+import { useState, useEffect } from 'react';
+import ProductItem from '@/components/ProductItem'; // თუ კომპონენტი components/ProductItem.js-შია
+
+export default function Home() {
+  const [products, setProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('https://fakestoreapi.com/products');
+
+        if (!response.ok) {
+          throw new Error('მონაცემების ჩატვირთვა ვერ მოხერხდა');
+        }
+
+        const data = await response.json();
+        setProducts(data);
+      } catch (err) {
+        setError(err.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProducts();
+  }, []);
+  if (loading) {
+    return (
+      <div style={{ textAlign: 'center', padding: '50px', fontSize: '1.2rem' }}>
+        იტვირთება
+      </div>
+    );
+  }
+  if (error) {
+    return (
+      <div style={{ textAlign: 'center', padding: '50px', color: 'red', fontSize: '1.2rem' }}>
+        მოხდა შეცდომა
+      </div>
+    );
+  }
   return (
-    <main style={{ padding: "20px" }}>
-      <h1>Products</h1>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: "20px" }}>
+    <main style={{ padding: '24px', maxWidth: '1200px', margin: '0 auto' }}>
+      <h1 style={{ fontSize: '1.8rem', fontWeight: 'bold', marginBottom: '24px' }}>
+        პროდუქტები
+      </h1>
+      
+      <div style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))',
+        gap: '20px'
+      }}>
         {products.map((product) => (
-          <div
-            key={product.id}
-            style={{
-              border: "1px solid #ccc",
-              borderRadius: "8px",
-              padding: "16px",
-              maxWidth: "300px",
-            }}
-          >
-            <p><strong>ID:</strong> {product.id}</p>
-            <img
-              src={product.image}
-              alt={product.title}
-              style={{ width: "100%", height: "200px", objectFit: "contain" }}
-            />
-            <h2>{product.title}</h2>
-            <p><strong>Price:</strong> ${product.price}</p>
-            <p>{product.description}</p>
-          </div>
+          <ProductItem key={product.id} product={product} />
         ))}
       </div>
     </main>
